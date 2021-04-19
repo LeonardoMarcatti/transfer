@@ -32,7 +32,7 @@
                         </div>
                         <div class="row">
                             <div class=" form-group col-8">
-                                <button type="submit" class="btn btn-success" id="btn_listar" >Criar CSV's</button>
+                                <button type="submit" class="btn btn-success btn-block" id="btn_agente" >Gravar</button>
                             </div>
                         </div>
                     </form>

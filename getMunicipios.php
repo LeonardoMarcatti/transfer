@@ -1,5 +1,5 @@
 <?php 
-    require_once 'conections.php'; 
+    require_once 'localconection.php'; 
     setlocale(LC_ALL, "pt_BR.utf-8");
 
     $estado = filter_input(INPUT_POST, 'estados_modal', FILTER_SANITIZE_STRING); 
@@ -14,8 +14,7 @@
             $sql = "select municipio, cod_municipio, uf from tb_empresa";
         } elseif($estado == "0" && $nome != ""){
             $sql = "select distinct(municipio), cod_municipio, uf from tb_empresa where uf 
-            in(select distinct(uf) from tb_empresa  where NOT uf = 'EX' 
-            ORDER BY uf) and municipio = :municipio";
+            in(select distinct(uf) from tb_empresa  where NOT uf = 'EX') and municipio = :municipio";
         } else{
             $sql = "select distinct(municipio), cod_municipio, uf from tb_empresa where uf = :uf"; 
         };

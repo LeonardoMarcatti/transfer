@@ -1,8 +1,9 @@
 let w = $(window).width();
 $(document).ready(function(){
-    $('.global').css('height', $(window).height());
+    $('.global').css('height', $(document).height());
     $('body').css('background-size', $(window).width());
 });
+
 
 function GetEstados(data) {
     let estados;
@@ -29,6 +30,9 @@ $('#r1').on('click', () =>{
 
 $('#form_modal').on('submit', function(e){
     e.preventDefault();
+    if ($('tbody tr').length >0) {
+        $('tbody tr').remove(); 
+    };
     getMunicipios($(this))
 });
 
@@ -38,11 +42,12 @@ function getMunicipios(dados) {
         url: "getMunicipios.php",
         data: dados.serialize(),
         beforeSend:  () => {
-            if ($('tbody tr').length >0) {
-                $('tbody tr').remove(); 
+            $('#pesquisar').attr('disabled', '');
+            if ($('#estados_modal').val() == 0) {
+                alert('A pesquisa por todo Brasil pode demorar, por favor aguarde!');
+            } else {
+                alert('Por favor aguarde');
             };
-            alert('Por favor aguarde');
-            console.log(dados.serialize());
         },
         success: function (response) {
             let lista = $.parseJSON(response);
@@ -54,10 +59,17 @@ function getMunicipios(dados) {
                 $('tr').eq(index+1).append('<td>' + '<button type="button" class="btn btn-success"><i class="fas fa-plus"></i>');
             };
             getCode();
+            $('#pesquisar').removeAttr('disabled');
         },
         error: e => console.log(e)
     });   
 };
+
+$('#fechar').on('click', e =>{
+    if ( $('#pesquisar').attr('disabled') != '') {
+        $('#pesquisar').removeAttr('disabled');
+    };
+});
 
 function getCode() {
     $('table button').on('click', function(){
@@ -77,37 +89,24 @@ $('#fechar').on('click', () => $('tbody tr').remove());
 
 $('#myform').on('submit', function(e){
     e.preventDefault();
-    getAgente($(this));
-    //getCnaeSecundario($(this));
+    gravaDados($(this));
 });
 
-function getAgente(dados) {
+function gravaDados(dados) {
     $.ajax({
         type: "post",
-        url: "getAgente.php",
+        url: "getCSVS.php",
         data: dados.serialize(),
         beforeSend:  () => {
             $('#resultado').find('a').remove();
             $('#resultado').find('button').remove();
             alert('Por favor aguarde');
-            console.log(dados.serialize());
+            $('#btn_agente').attr('disabled','');
         },
         success: function (resp) {
             console.log(resp);
-            $('#resultado').append('<button type="button" class="btn btn-danger"><a href="agente.zip">Agente');
+            alert('OK');
+            $('#btn_agente').removeAttr('disabled');
         }
     });  
-};
-
-
-function getCnaeSecundario(dados) {
-    $.ajax({
-        type: "post",
-        url: "getCnaeSecundario.php",
-        data: dados.serialize(),
-        success: function (resp) {
-            console.log($.parseJSON(resp));
-            //$('#resultado').append('<button type="button" class="btn btn-danger"><a href="cnaesecundario.zip">CNAE Secundario');
-        }
-    });
 };

@@ -1,11 +1,11 @@
 <?php 
-    require_once 'conections.php';
+    require_once 'localconection.php';
     setlocale(LC_ALL, "pt_BR.utf-8");
 
-    $sql = "select id, sigla, nome from tb_uf;";
+    $sql = "select sigla, nome from tb_uf;";
     $select = $selfie->prepare($sql);
     $select->execute();
-    $result = $select->fetchAll(pdo::FETCH_ASSOC);
+    $result = $select->fetchAll(PDO::FETCH_ASSOC);
     $estado = array();
 
     foreach ($result as $key => $value) {
