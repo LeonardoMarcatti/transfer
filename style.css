@@ -39,10 +39,7 @@ a:hover{
 }
 
 body{
-    background-image: url('img/minerin.png');
-    background-size: cover;
-    background-position: top;
-    background-repeat: no-repeat;
+    background-color: silver;
 }
 
 #resultado{

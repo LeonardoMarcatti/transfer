@@ -1,5 +1,5 @@
 <?php
-
+    set_time_limit(0);
     header("Access-Control-Allow-Origin: *");
     $server = "192.168.0.30";
     $db = 'db_bigdata';

@@ -29,7 +29,6 @@
     $id_empresas = array();
     $lista_cnaes = array();
     $socios = array();
-       
 
     if ($municipios == '') {
         if ($estado == "0") {
@@ -50,8 +49,7 @@
 
     $qte->execute();
     $result_qte = $qte->fetch()[0];
-
-    $limit = 100000;
+    $limit = 10000;
     $num_de_csv = ceil($result_qte/$limit); //Quantidade de arquivos csv necessários
 
     for ($i=0; $i < $num_de_csv; $i++) {
@@ -76,6 +74,9 @@
         foreach ($result as $key => $array) {
             foreach ($array as $key2 => $value) {
                 if ($key2 == 'ddd_1' || $key2 == 'ddd_2') {
+                    if (strlen($value) == 4) {
+                        $value = substr($value, -2);
+                    };
                     $v = $value;
                     continue;
                 } else if($key2 == 'telefone_1' || $key2 == 'telefone_2'){
@@ -103,7 +104,7 @@
                 $data = array();
                 for ($i3=0; $i3 < count($data2); $i3++) { 
                     if ($data2[$i3] == '') {
-                        // roberto mão recatada e broxante
+                        // roberto mão santa!
                         $data2[$i3] = null;
                     };
                     array_push($data, $data2[$i3]);
@@ -115,14 +116,13 @@
                 } else {
                    $agenteDAO->addAgente($data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[6], $data[7], $data[8], $data[9], $data[10], $data[11], $data[12], $data[13], $data[14], $data[15], $data[16], $data[17], $data[18], $data[19], $data[20]);
                 };
-
             };    
         };
         fclose($handle);
     };
 
     //lista agentes
-    $ids_municipios = $empresa->getIDMunicipio([5331, 6243]);
+    $ids_municipios = $empresa->getIDMunicipio([$municipios]);
     foreach ($ids_municipios as $key => $value) {
         $lista_parcial = $empresa2->getAgenteFK($value);
         foreach ($lista_parcial as $key => $value) {
@@ -318,6 +318,6 @@
     unlink('CSVs/empresa/empresa.csv');
     unlink('CSVs/socio/socios.csv');
 
-    echo 'ok';
+    echo $i;
     
 ?>

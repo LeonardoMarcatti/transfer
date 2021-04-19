@@ -30,7 +30,7 @@
                     return false;
                 }
             }
-            return '1';    
+            return true;    
         }
 
         public function getIDMunicipio($val)
@@ -47,7 +47,7 @@
 
         public function getAgenteFK($val)
         {
-            $sql = "select id from tb_agente where municipio_fk in(:val) order by cpf_cnpj";
+            $sql = "select id from tb_agente where municipio_fk = :val order by cpf_cnpj";
             $select = $this->pdo->prepare($sql);
             $select->bindValue(':val', $val);
             $select->execute();
