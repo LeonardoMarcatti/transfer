@@ -45,21 +45,24 @@ function getMunicipios(dados) {
             $('#pesquisar').attr('disabled', '');
             if ($('#estados_modal').val() == 0) {
                 alert('A pesquisa por todo Brasil pode demorar, por favor aguarde!');
-            } else {
-                alert('Por favor aguarde');
             };
         },
         success: function (response) {
             let lista = $.parseJSON(response);
-            for (let index = 0; index < lista.length; index++) {
-                $('tbody').eq(0).append('<tr>');
-                $('tr').eq(index+1).append('<td>' + lista[index].municipio);
-                $('tr').eq(index+1).append('<td id="cod">' + lista[index].cod_municipio);
-                $('tr').eq(index+1).append('<td>' + lista[index].uf);
-                $('tr').eq(index+1).append('<td>' + '<button type="button" class="btn btn-success"><i class="fas fa-plus"></i>');
+            if (lista != '') {
+                for (let index = 0; index < lista.length; index++) {
+                    $('tbody').eq(0).append('<tr>');
+                    $('tr').eq(index+1).append('<td>' + lista[index].municipio);
+                    $('tr').eq(index+1).append('<td id="cod">' + lista[index].cod_municipio);
+                    $('tr').eq(index+1).append('<td>' + lista[index].uf);
+                    $('tr').eq(index+1).append('<td>' + '<button type="button" class="btn btn-success"><i class="fas fa-plus"></i>');
+                };
+                getCode();
+                $('#pesquisar').removeAttr('disabled');
+            } else {
+                alert('Não foi possível encontrar!');
+                $('#pesquisar').removeAttr('disabled');
             };
-            getCode();
-            $('#pesquisar').removeAttr('disabled');
         },
         error: e => console.log(e)
     });   
@@ -104,9 +107,11 @@ function gravaDados(dados) {
             $('#btn_agente').attr('disabled','');
         },
         success: function (resp) {
-            console.log(resp);
-            alert('OK');
+            alert('Dados gravados com sucesso!');
             $('#btn_agente').removeAttr('disabled');
+        },
+        error: e => {
+            console.log(e);
         }
     });  
 };

@@ -155,16 +155,16 @@
         $empresa_csv[$i5][] = null;
         $empresa_csv[$i5][] = null;
         $empresa_csv[$i5][] = null;
-        $empresa_csv[$i5][] = $empresa->getInfo($lista_cnpj[$i5])[0]['capital_social'];
-        $empresa_csv[$i5][] = (strlen($empresa->getInfo($lista_cnpj[$i5])[0]['cnae_fiscal']) == 6) ? 0 . $empresa->getInfo($lista_cnpj[$i5])[0]['cnae_fiscal'] : $empresa->getInfo($lista_cnpj[$i5])[0]['cnae_fiscal'];
-        $empresa_csv[$i5][] = ($empresa->getInfo($lista_cnpj[$i5])[0]['nome_fantasia']) ? $empresa->getInfo($lista_cnpj[$i5])[0]['nome_fantasia'] : '-';
+        $empresa_csv[$i5][] = $empresa->getInfo($lista_cnpj[$i5])['capital_social'];
+        $empresa_csv[$i5][] = (strlen($empresa->getInfo($lista_cnpj[$i5])['cnae_fiscal']) == 6) ? 0 . $empresa->getInfo($lista_cnpj[$i5])['cnae_fiscal'] : $empresa->getInfo($lista_cnpj[$i5])['cnae_fiscal'];
+        $empresa_csv[$i5][] = ($empresa->getInfo($lista_cnpj[$i5])['nome_fantasia']) ? $empresa->getInfo($lista_cnpj[$i5])['nome_fantasia'] : '-';
         $empresa_csv[$i5][] = $empresa->getRegimeFK($lista_cnpj[$i5]);
         $empresa_csv[$i5][] = $empresa->getPorteFK($lista_cnpj[$i5]);
-        $empresa_csv[$i5][] = $empresa->getInfo($lista_cnpj[$i5])[0]['cod_nat_juridica'];
+        $empresa_csv[$i5][] = $empresa->getInfo($lista_cnpj[$i5])['cod_nat_juridica'];
         $empresa_csv[$i5][] = null;
         $empresa_csv[$i5][] = $empresa->getSituacaoFK($lista_cnpj[$i5]);
         $empresa_csv[$i5][] = $empresa->getSeguimentoFK($lista_cnpj[$i5]);
-        $empresa_csv[$i5][] = $empresa->getInfo($lista_cnpj[$i5])[0]['data_situacao'];
+        $empresa_csv[$i5][] = $empresa->getInfo($lista_cnpj[$i5])['data_situacao'];
     };
 
     $csv = fopen('empresa.csv', 'w');
@@ -195,7 +195,7 @@
         };
         fclose($grava_empresa);
     } else{
-        echo 'erro';
+        print_r(error_get_last());
     };
 
     for ($i6=0; $i6 < $num_de_csv; $i6++) {
@@ -251,7 +251,7 @@
             };
         };    
     } else{
-        echo 'erro';
+        print_r(error_get_last());
     };
     fclose($handle);
 
@@ -318,6 +318,5 @@
     unlink('CSVs/empresa/empresa.csv');
     unlink('CSVs/socio/socios.csv');
 
-    echo $i;
-    
+
 ?>

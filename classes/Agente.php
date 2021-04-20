@@ -1,6 +1,5 @@
 <?php
     namespace classes;
-
     class AgenteDAO{
         private $pdo;
 
@@ -13,19 +12,6 @@
         {
             $sql = "select 'J' as J, cnpj_cpf, '' as nulo1, cep, logradouro, numero, complemento, m.id as id_municipio,  '' as nulo2, '' as nulo3, '' as nulo4, ddd_1, telefone_1, '' as nulo5, email, '' as nulo6, data_inicio_ativ, razao_social, 
             data_situacao, '' as nulo7, bairro, ddd_2, telefone_2 from tb_empresa e join tb_municipio m on e.cod_municipio = m.cod_municipio offset :offset limit :limit";
-            $select = $this->pdo->prepare($sql);
-            $select->bindValue(':offset', $offset);
-            $select->bindValue(':limit', $limit);
-            $select->execute(); 
-            $result = $select->fetchAll(\PDO::FETCH_ASSOC);
-
-            return $result;
-        }
-
-        public function getAgenteMunicipios($municipios, $limit, $offset)
-        {
-            $sql = "select 'J' as J, cnpj_cpf, '' as nulo1, cep, logradouro, numero, complemento, m.id as id_municipio,  '' as nulo2, '' as nulo3, '' as nulo4, ddd_1, telefone_1, '' as nulo5, email, '' as nulo6, data_inicio_ativ, razao_social, 
-            data_situacao, '' as nulo7, bairro, ddd_2, telefone_2 from tb_empresa e join tb_municipio m on e.cod_municipio = m.cod_municipio where e.cod_municipio in ($municipios) order by cnpj_cpf offset :offset limit :limit";
             $select = $this->pdo->prepare($sql);
             $select->bindValue(':offset', $offset);
             $select->bindValue(':limit', $limit);
@@ -48,6 +34,19 @@
             return $result;
         }
 
+        public function getAgenteMunicipios($municipios, $limit, $offset)
+        {
+            $sql = "select 'J' as J, cnpj_cpf, '' as nulo1, cep, logradouro, numero, complemento, m.id as id_municipio,  '' as nulo2, '' as nulo3, '' as nulo4, ddd_1, telefone_1, '' as nulo5, email, '' as nulo6, data_inicio_ativ, razao_social, 
+            data_situacao, '' as nulo7, bairro, ddd_2, telefone_2 from tb_empresa e join tb_municipio m on e.cod_municipio = m.cod_municipio where e.cod_municipio in ($municipios) order by cnpj_cpf offset :offset limit :limit";
+            $select = $this->pdo->prepare($sql);
+            $select->bindValue(':offset', $offset);
+            $select->bindValue(':limit', $limit);
+            $select->execute(); 
+            $result = $select->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $result;
+        }
+        
         public function checkAgente($val)
         {
             $sql = "select id from tb_agente where cpf_cnpj = :val";

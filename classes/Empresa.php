@@ -74,7 +74,7 @@
             $select = $this->pdo->prepare($sql);
             $select->bindValue(':val', $val);
             $select->execute();
-            return $select->fetchAll(\PDO::FETCH_ASSOC);
+            return $select->fetch(\PDO::FETCH_ASSOC);
         }
 
         public function getRegimeFK($val)

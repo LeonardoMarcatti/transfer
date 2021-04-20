@@ -3,6 +3,7 @@
     header("Access-Control-Allow-Origin: *");
     $server = "192.168.0.30";
     $db = 'db_bigdata';
+    $db2 = 'selfie';
     $user = 'postgres';
     $password = 'postmy';
     
@@ -12,8 +13,6 @@
         echo 'Erro linha: ' . $th->getLine() . "<br>";
         echo ('Código: ' . $th->getMessage()) . "<br>";
     };
-
-    $db2 = 'selfie';
     
     try {
         $selfie = new PDO("pgsql:host=$server; dbname=$db2", "$user", "$password");

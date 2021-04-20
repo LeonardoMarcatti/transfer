@@ -9,17 +9,21 @@
 
     if ($cod == "") {
         if ($estado != "0" && $nome != "") {
-            $sql = "select municipio, cod_municipio, uf from tb_empresa where municipio = :municipio and uf = :uf limit 1";        
+            $sql = "select m.nome as municipio, m.cod_municipio, u.sigla as uf from tb_municipio m join tb_uf u on u.id = m.uf_fk where unaccent(upper(m.nome)) = unaccent(upper(:municipio)) and u.sigla = :uf limit 1";        
         } elseif($estado == "0" && $nome == ""){
-            $sql = "select municipio, cod_municipio, uf from tb_empresa";
+            //Todas as cidades do Brasil
+            $sql = "select m.nome as municipio, m.cod_municipio, u.sigla as uf from tb_municipio m join tb_uf u on u.id = m.uf_fk";
         } elseif($estado == "0" && $nome != ""){
-            $sql = "select distinct(municipio), cod_municipio, uf from tb_empresa where uf 
-            in(select distinct(uf) from tb_empresa  where NOT uf = 'EX') and municipio = :municipio";
+            $sql = "select distinct(m.nome) as municipio, m.cod_municipio, u.sigla as uf from tb_municipio m join tb_uf u on u.id = m.uf_fk where 
+            u.sigla in(select distinct(sigla) from tb_uf where NOT sigla = 'EX') 
+            and unaccent(upper(m.nome)) = unaccent(upper(:municipio))";
         } else{
-            $sql = "select distinct(municipio), cod_municipio, uf from tb_empresa where uf = :uf"; 
+            //Todas as cidades de um estado
+            $sql = "select m.nome as municipio, m.cod_municipio, u.sigla as uf from tb_municipio m join tb_uf u on u.id = m.uf_fk where u.sigla = :uf"; 
         };
     } else {
-        $sql = "select distinct(municipio), cod_municipio, uf from tb_empresa where cod_municipio = :cod limit 1"; 
+        $sql = "select distinct(m.nome) as municipio, m.cod_municipio, u.sigla as uf from tb_municipio m join tb_uf u on u.id = m.uf_fk where 
+        m.cod_municipio = :cod limit 1"; 
     };
     
     $select = $bigdata->prepare($sql);
