@@ -33,25 +33,13 @@
             return true;    
         }
 
-        public function getIDMunicipio($val)
-        {
-            $ids = [];
-            foreach ($val as $key => $value) {
-                $sql = "select id from tb_municipio where cod_municipio = $value";
-                $select = $this->pdo->prepare($sql);
-                $select->execute();
-                array_push($ids, $select->fetch(\PDO::FETCH_ASSOC)['id']);
-            };
-            return $ids;
-        }
-
         public function getAgenteFK($val)
         {
-            $sql = "select id from tb_agente where municipio_fk = :val order by cpf_cnpj";
+            $sql = "select id from tb_agente where cpf_cnpj = :val";
             $select = $this->pdo->prepare($sql);
             $select->bindValue(':val', $val);
             $select->execute();
-            return $select->fetchAll(\PDO::FETCH_ASSOC);
+            return $select->fetch(\PDO::FETCH_ASSOC)['id'];
         }
 
         public function getDataFechamento($val)
@@ -60,10 +48,9 @@
             $select = $this->pdo->prepare($sql);
             $select->bindValue(':val', $val);
             $select->execute();
-            $data = $select->fetchAll(\PDO::FETCH_ASSOC);
-            //return $data;
-            if ($data[0]['situacao_fk'] == 8) {
-                return $data[0]['data_situacao'];
+            $data = $select->fetch(\PDO::FETCH_ASSOC);
+            if ($data['situacao_fk'] == 8) {
+                return $data['data_situacao'];
             };
             return null;
         }

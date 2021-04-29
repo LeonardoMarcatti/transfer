@@ -11,8 +11,9 @@
 
         public function getSocios($val)
         {
-            $sql = "select null as \"n1\", qualificacao_socio_fk, nome_socio, cnpj_cpf_socio, cod_qualificacao_socio_fk, null as \"n2\", data_entrada_socio, nome_representante, cpf_representante, cod_qual_representante_fk, null as \"n3\", 
-            null as \"n4\" from tb_socios where cnpj_cpf = :val";
+            $sql = "select qualificacao_socio_fk, null as n4, nome_socio, cnpj_cpf_socio, cod_qualificacao_socio_fk, null as n1,
+            data_entrada_socio, nome_representante, cpf_representante, cod_qual_representante_fk, null as n2, 
+            null as n3 from tb_socios where cnpj_cpf = :val";
             $select = $this->pdo->prepare($sql);
             $select->bindValue(':val', $val);
             $select->execute();

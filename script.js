@@ -109,6 +109,7 @@ function gravaDados(dados) {
         success: function (resp) {
             alert('Dados gravados com sucesso!');
             $('#btn_agente').removeAttr('disabled');
+            console.log(resp);
         },
         error: e => {
             console.log(e);

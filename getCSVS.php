@@ -16,19 +16,14 @@
 
     $agenteDAO = new AgenteDAO($selfie);
     $id_agente = new AgenteDAO($selfie);
-    $id_empresa = new CnaeSecundarioDAO($selfie);
-    $cnaes = new CnaeSecundarioDAO($bigdata);
     $cnae_selfie = new CnaeSecundarioDAO($selfie);
+    $cnaes = new CnaeSecundarioDAO($bigdata);
+    $cnae_bigdata = new CnaeSecundarioDAO($bigdata);
     $socio = new SocioDAO($bigdata);
     $empresa2 = new EmpresaDAO($selfie);
     $empresa = new EmpresaDAO($bigdata);
-    $empresa_csv = array();
-    $lista_id_agentes = array();
-    $lista_cnpj = array();
-    $id_agentes = array();
     $id_empresas = array();
-    $lista_cnaes = array();
-    $socios = array();
+
 
     if ($municipios == '') {
         if ($estado == "0") {
@@ -49,9 +44,10 @@
 
     $qte->execute();
     $result_qte = $qte->fetch()[0];
-    $limit = 10000;
+    $limit = 100000;
     $num_de_csv = ceil($result_qte/$limit); //Quantidade de arquivos csv necessários
 
+    //Cria os arquivos CSVs de agente
     for ($i=0; $i < $num_de_csv; $i++) {
         $offset = $limit * $i;
         if ($municipios == '') {
@@ -67,8 +63,9 @@
             $result =  $agente->getAgenteMunicipios($municipios, $limit, $offset);
         };
 
-        $nome_arquivo = 'agente' . $i . '.csv';
-        $arquivo[$i] = fopen($nome_arquivo, 'w');
+        //*Cria os arquivos CSV do agente
+        $nome_arquivo_agente = 'agente' . $i . '.csv';
+        $arquivo_agente = fopen($nome_arquivo_agente, 'w');
         $result2 = array();
 
         foreach ($result as $key => $array) {
@@ -89,25 +86,25 @@
         };
 
         foreach ($result2 as $key => $value) {
-            fputcsv($arquivo[$i], $value, ';');
+            fputcsv($arquivo_agente, $value, ';');
         };
 
         fclose($arquivo[$i]);
-        rename($nome_arquivo, 'CSVs/agente/' . $nome_arquivo);
-    };
+        rename($nome_arquivo_agente, 'CSVs/agente/' . $nome_arquivo_agente);
 
-    for ($i2=0; $i2 < $num_de_csv; $i2++) {
-        $CSVfile = 'agente' . $i2 . '.csv';
-        $handle = fopen('CSVs/agente/' . $CSVfile, 'r');
+        
+        //*Grava os CSVs agente no selfie
+        $abre_agente = 'agente' . $i . '.csv';
+        $handle = fopen('CSVs/agente/' . $abre_agente, 'r');
         if ($handle) {
             while ($data2 = fgetcsv($handle, 1000, ';')) {
                 $data = array();
-                for ($i3=0; $i3 < count($data2); $i3++) { 
-                    if ($data2[$i3] == '') {
+                for ($i2=0; $i2 < count($data2); $i2++) { 
+                    if ($data2[$i2] == '') {
                         // roberto mão santa!
-                        $data2[$i3] = null;
+                        $data2[$i2] = null;
                     };
-                    array_push($data, $data2[$i3]);
+                    array_push($data, $data2[$i2]);
                 };
                 $agenteDAO = new AgenteDAO($selfie);
                 $return_id = $agenteDAO->checkAgente($data[1]);
@@ -119,69 +116,51 @@
             };    
         };
         fclose($handle);
-    };
 
-    //lista agentes
-    $ids_municipios = $empresa->getIDMunicipio([$municipios]);
-    foreach ($ids_municipios as $key => $value) {
-        $lista_parcial = $empresa2->getAgenteFK($value);
-        foreach ($lista_parcial as $key => $value) {
-            array_push($lista_id_agentes, $value['id']);
-        };
-    };
-
-    //Organiza a lista em ordem crescente de ids
-    sort($lista_id_agentes);
-
-    //lista cnpj_cpf
-    for ($i4=0; $i4 < $num_de_csv; $i4++) {
-        $CSVfile = 'agente' . $i4 . '.csv';
+        
+        //*Cria os CSVs empresa
+        $nome_arquivo_empresa = 'empresa' . $i . '.csv';
+        $arquivo_empresa = fopen($nome_arquivo_empresa, 'w');
+        $CSVfile = 'agente' . $i . '.csv';
         $handle = fopen('CSVs/agente/' . $CSVfile, 'r');
-        if ($handle) {
-            while ($data = fgetcsv($handle, 1000, ';')) {
-                array_push($lista_cnpj, $data[1]);
-            };    
+        while ($data = fgetcsv($handle, 1000, ';')) {
+            $empresa_csv = array();
+            $info = $empresa->getInfo($data[1]);
+            $empresa_csv[] = $empresa2->getAgenteFK($data[1]);
+            $empresa_csv[] = null;
+            $empresa_csv[] = null;
+            $empresa_csv[] = $empresa->getDataFechamento($data[1]);
+            $empresa_csv[] = null;
+            $empresa_csv[] = null;
+            $empresa_csv[] = null;
+            $empresa_csv[] = null;
+            $empresa_csv[] = null;
+            $empresa_csv[] = $info['capital_social'];
+            $empresa_csv[] = (strlen($info['cnae_fiscal']) == 6) ? 0 . $info['cnae_fiscal'] : $info['cnae_fiscal'];
+            $empresa_csv[] = ($info['nome_fantasia']) ? $info['nome_fantasia'] : '-';
+            $empresa_csv[] = $empresa->getRegimeFK($data[1]);
+            $empresa_csv[] = $empresa->getPorteFK($data[1]);
+            $empresa_csv[] = $info['cod_nat_juridica'];
+            $empresa_csv[] = null;
+            $empresa_csv[] = $empresa->getSituacaoFK($data[1]);
+            $empresa_csv[] = $empresa->getSeguimentoFK($data[1]);
+            $empresa_csv[] = $info['data_situacao'];
+            fputcsv($arquivo_empresa, $empresa_csv, ';');
         };
+
         fclose($handle);
-    };
-
-    for ($i5=0; $i5 < count($lista_cnpj); $i5++) { 
-        $empresa_csv[$i5][] = $lista_id_agentes[$i5];
-        $empresa_csv[$i5][] = null;
-        $empresa_csv[$i5][] = null;
-        $empresa_csv[$i5][] = $empresa->getDataFechamento($lista_cnpj[$i5]);
-        $empresa_csv[$i5][] = null;
-        $empresa_csv[$i5][] = null;
-        $empresa_csv[$i5][] = null;
-        $empresa_csv[$i5][] = null;
-        $empresa_csv[$i5][] = null;
-        $empresa_csv[$i5][] = $empresa->getInfo($lista_cnpj[$i5])['capital_social'];
-        $empresa_csv[$i5][] = (strlen($empresa->getInfo($lista_cnpj[$i5])['cnae_fiscal']) == 6) ? 0 . $empresa->getInfo($lista_cnpj[$i5])['cnae_fiscal'] : $empresa->getInfo($lista_cnpj[$i5])['cnae_fiscal'];
-        $empresa_csv[$i5][] = ($empresa->getInfo($lista_cnpj[$i5])['nome_fantasia']) ? $empresa->getInfo($lista_cnpj[$i5])['nome_fantasia'] : '-';
-        $empresa_csv[$i5][] = $empresa->getRegimeFK($lista_cnpj[$i5]);
-        $empresa_csv[$i5][] = $empresa->getPorteFK($lista_cnpj[$i5]);
-        $empresa_csv[$i5][] = $empresa->getInfo($lista_cnpj[$i5])['cod_nat_juridica'];
-        $empresa_csv[$i5][] = null;
-        $empresa_csv[$i5][] = $empresa->getSituacaoFK($lista_cnpj[$i5]);
-        $empresa_csv[$i5][] = $empresa->getSeguimentoFK($lista_cnpj[$i5]);
-        $empresa_csv[$i5][] = $empresa->getInfo($lista_cnpj[$i5])['data_situacao'];
-    };
-
-    $csv = fopen('empresa.csv', 'w');
-    foreach ($empresa_csv as $key => $value) {
-        fputcsv($csv, $value, ';');
-    };
-
-    fclose($csv);
-    rename('empresa.csv', 'CSVs/empresa/empresa.csv');
-
-    $grava_empresa = fopen('CSVs/empresa/empresa.csv', 'r');
-    if ($grava_empresa) {
-        while ($data2 = fgetcsv($grava_empresa, 1000, ';')) {
+        fclose($arquivo_empresa);
+        rename($nome_arquivo_empresa, 'CSVs/empresa/' . $nome_arquivo_empresa);
+        
+        
+         //*Grava os CSVs empresa no selfie
+        $CSVfile = 'empresa' . $i . '.csv';
+        $handle = fopen('CSVs/empresa/' . $CSVfile, 'r');
+        while ($data2 = fgetcsv($handle, 1000, ';')) {
             $data = array();
-            for ($i5=0; $i5 < count($data2); $i5++) { 
-                if ($data2[$i5] == '') {
-                   $data2[$i5] = null;
+            for ($i2=0; $i2 < count($data2); $i2++) { 
+                if ($data2[$i2] == '') {
+                   $data2[$i2] = null;
                 };
             };
             array_push($data, $data2);
@@ -193,130 +172,104 @@
                 $empresaDAO->addEmpresa($data[0][0], $data[0][1], $data[0][2], $data[0][3], $data[0][4], $data[0][5], $data[0][6], $data[0][7], $data[0][8], $data[0][9], $data[0][10], $data[0][11], $data[0][12], $data[0][13], $data[0][14], $data[0][15], $data[0][16], $data[0][17], $data[0][18]);
             };
         };
-        fclose($grava_empresa);
-    } else{
-        print_r(error_get_last());
-    };
-
-    for ($i6=0; $i6 < $num_de_csv; $i6++) {
-        $CSVfile = 'agente' . $i6 . '.csv';
-        $handle = fopen('CSVs/agente/' . $CSVfile, 'r');
-        if ($handle) {
-            while ($data = fgetcsv($handle, 1000, ';')) {
-                array_push($lista_cnpj, $data[1]);
-            };    
-        };
         fclose($handle);
-    };
 
-    foreach ($lista_cnpj as $key => $value) {
-        $id = $id_agente->checkAgente($value);
-        array_push($id_agentes, $id);
-    };
-
-    foreach ($id_agentes as $key => $value) {
-        $id = $id_empresa->getEmpresaID($value);
-        array_push($id_empresas, $id);
-    };
-
-
-    //Le a lista de CNPJs e preenche o array. Em alguns casos preenche com um 0 o inicio do cnae
-     for ($i=0; $i < count($lista_cnpj) ; $i++) {
-        $cnae = $cnaes->getCNAES($lista_cnpj[$i]);
-        for ($i2=0; $i2 < count($cnae); $i2++) { 
-            if (strlen($cnae[$i2]['cnae_secundario']) == 6) {
-                $lista_cnaes[] = [$id_empresas[$i],  '0' . $cnae[$i2]['cnae_secundario']];
-            } else {
-                $lista_cnaes[] = [$id_empresas[$i], $cnae[$i2]['cnae_secundario']]; 
-            };
-        };
-    };
-
-    //preenche o CSV
-    $csv = fopen('cnaes.csv', 'w');
-    foreach ($lista_cnaes as $key => $value) {
-        fputcsv($csv, $value, ';');
-    };
-
-    fclose($csv);
-    rename('cnaes.csv', 'CSVs/cnae_sec/cnaes.csv');
-
-    $handle = fopen('CSVs/cnae_sec/cnaes.csv', 'r');
-    if ($handle) {
+        
+        //*Preenche o CSV de Socios
+        $nome_arquivo = 'socios' . $i . '.csv';
+        $arquivo = fopen($nome_arquivo, 'w');
+        $CSVfile = 'empresa' . $i . '.csv';
+        $handle = fopen('CSVs/empresa/' . $CSVfile, 'r');
         while ($data = fgetcsv($handle, 1000, ';')) {
-            $checked = $cnae_selfie->checkCANESecundario($data[0], $data[1]);
-            if ($checked) {
-            } else{
-                $cnae_selfie->addCNAESecundario($data[0], $data[1]);
+            $array = array();
+            $lista_socios = array();
+            $info_empresa = $cnae_selfie->getEmpresaInfo($data[0]); # pega id e cnpj
+            $lista_socios = $socio->getSocios($info_empresa['cpf_cnpj']);
+            foreach ($lista_socios as $key => $value) {
+                $array[] = [$info_empresa['id'], $value['qualificacao_socio_fk'], $value['n1'], $value['nome_socio'], $value['cnpj_cpf_socio'], $value['cod_qualificacao_socio_fk'], $value['n2'], $value['data_entrada_socio'], $value['nome_representante'], $value['cpf_representante'], $value['cod_qual_representante_fk'], $value['n3'], $value['n4'],];
             };
-        };    
-    } else{
-        print_r(error_get_last());
-    };
-    fclose($handle);
-
-    for ($i=0; $i < count($lista_cnpj); $i++) { 
-        $lista = $socio->getSocios($lista_cnpj[$i]);
-        for ($i2=0; $i2 < count($lista); $i2++) { 
-            $lista_socios[$i2][] = $id_empresas[$i];
-            $lista_socios[$i2][] = $lista[$i2]['qualificacao_socio_fk'];
-            $lista_socios[$i2][] = $lista[$i2]['n1'];
-            $lista_socios[$i2][] = $lista[$i2]['nome_socio'];
-            $lista_socios[$i2][] = $lista[$i2]['cnpj_cpf_socio'];
-            $lista_socios[$i2][] = $lista[$i2]['cod_qualificacao_socio_fk'];
-            $lista_socios[$i2][] = $lista[$i2]['n2'];
-            $lista_socios[$i2][] = $lista[$i2]['data_entrada_socio'];
-            $lista_socios[$i2][] = $lista[$i2]['nome_representante'];
-            $lista_socios[$i2][] = $lista[$i2]['cpf_representante'];
-            $lista_socios[$i2][] = $lista[$i2]['cod_qual_representante_fk'];
-            $lista_socios[$i2][] = $lista[$i2]['n3'];
-            $lista_socios[$i2][] = $lista[$i2]['n4'];
+            foreach ($array as $key => $value) {
+                fputcsv($arquivo, $value, ';');
+            };
         };
-    };
 
-    for ($i=0; $i < count($lista_cnpj); $i++) { 
-        $lista = $socio->getSocios($lista_cnpj[$i]);
-        for ($i2=0; $i2 < count($lista); $i2++) { 
-            $lista_socios[$i2][] = [$id_empresas[$i], $lista[$i2]['qualificacao_socio_fk'], $lista[$i2]['n1'], $lista[$i2]['nome_socio'], $lista[$i2]['cnpj_cpf_socio'],  $lista[$i2]['cod_qualificacao_socio_fk'], $lista[$i2]['n2'], $lista[$i2]['data_entrada_socio'], $lista[$i2]['nome_representante'], $lista[$i2]['cpf_representante'], $lista[$i2]['cod_qual_representante_fk'], $lista[$i2]['n3'], $lista[$i2]['n4']];
-        };
-    };
+        fclose($handle);
+        fclose($arquivo);
+        rename($nome_arquivo, 'CSVs/socio/' . $nome_arquivo);
 
-    $csv = fopen('socios.csv', 'w');
-    foreach ($lista_socios as $key => $value) {
-        foreach ($value as $key => $values) {
-            fputcsv($csv, $values, ';');
-        };        
-    };
-    fclose($csv);
-    rename('socios.csv', 'CSVs/socio/socios.csv');
 
-    $grava_socios = fopen('CSVs/socio/socios.csv', 'r');
-    if ($grava_socios) {
-        while ($data2 = fgetcsv($grava_socios, 1000, ';')) {
+        
+         //*Grava os CSVs socios no selfie
+        $CSVfile = 'socios' . $i . '.csv';
+        $handle = fopen('CSVs/socio/' . $CSVfile, 'r');
+        while ($data2 = fgetcsv($handle, 1000, ';')) {
             $data = array();
-            for ($i=0; $i < count($data2); $i++) { 
-                if ($data2[$i] == '') {
-                   $data2[$i] = null;
+            for ($i2=0; $i2 < count($data2); $i2++) { 
+                if ($data2[$i2] == '') {
+                   $data2[$i2] = null;
+                };
+                $data = $data2;
+                $check_socio = new SocioDAO($selfie);
+                $checked_socio = $check_socio->checkSocios($data[1], $data[3], $data[4], $data[5], $data[7]);
+                if ($checked_socio) {
+                    $check_socio->updateSocio($checked_socio, $data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[6], $data[7], $data[8], $data[9], $data[10], $data[11], $data[12]);
+                } else {
+                    $check_socio->addSocio($data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[6], $data[7], $data[8], $data[9], $data[10], $data[11], $data[12]);
                 };
             };
-            $data = $data2;
-            $check_socio = new SocioDAO($selfie);
-            $checked_socio = $check_socio->checkSocios($data[1], $data[3], $data[4], $data[5], $data[7]);
-            if ($checked_socio) {
-               $check_socio->updateSocio($checked_socio, $data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[6], $data[7], $data[8], $data[9], $data[10], $data[11], $data[12]);
-            } else {
-                $check_socio->addSocio($data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[6], $data[7], $data[8], $data[9], $data[10], $data[11], $data[12]);
-            };            
         };
+        fclose($handle);
+
+        //*Cria os CSVs cnae secundario
+        $nome_arquivo_cnae = 'cnae' . $i . '.csv';
+        $arquivo_cnae = fopen($nome_arquivo_cnae, 'w');
+        $CSVfile = 'empresa' . $i . '.csv';
+        $handle = fopen('CSVs/empresa/' . $CSVfile, 'r');
+        while ($data = fgetcsv($handle, 1000, ';')) {
+            $array_cnae = array();
+            $lista_cnaes = array();
+            $info_empresa = $cnae_selfie->getEmpresaInfo($data[0]); # pega id e cnpj
+            $lista_cnaes = $cnae_bigdata->getCNAES($info_empresa['cpf_cnpj']);
+            foreach ($lista_cnaes as $key => $value) {
+                if (strlen($value['cnae_secundario']) == 6) {
+                    $array_cnae[] = [$info_empresa['id'],  0 . $value['cnae_secundario']];
+                } else {
+                    $array_cnae[] = [$info_empresa['id'], $value['cnae_secundario']];
+                };
+            };
+            foreach ($array_cnae as $key => $value) {
+                fputcsv($arquivo_cnae, $value, ';');
+            };
+        };
+
+        fclose($handle);
+        fclose($arquivo_cnae);       
+        rename($nome_arquivo_cnae, 'CSVs/cnae/' . $nome_arquivo_cnae);
+
+        //*Grava os cnaes secundarios no selfie
+        $CSVfile = 'cnae' . $i . '.csv';
+        $handle = fopen('CSVs/cnae/' . $CSVfile, 'r');
+        while ($data2 = fgetcsv($handle, 1000, ';')) {
+            $data = array();
+            for ($i2=0; $i2 < count($data2); $i2++) { 
+                if ($data2[$i2] == '') {
+                   $data2[$i2] = null;
+                };
+                $data = $data2;
+                $check_cnae = $cnae_selfie->checkCANESecundario($data[0], $data[1]);
+                if (!$check_cnae) {
+                    $cnae_selfie->addCNAESecundario($data[0], $data[1]);
+                };                
+            };
+        };
+        fclose($handle);
+        
     };
 
     for ($i=0; $i < $num_de_csv; $i++) {
         unlink('CSVs/agente/agente' . $i . '.csv');
+        unlink('CSVs/empresa/empresa' . $i . '.csv');
+        unlink('CSVs/socio/socios' . $i . '.csv');
+        unlink('CSVs/cnae/cnae' . $i . '.csv');
     };
-
-    unlink('CSVs/cnae_sec/cnaes.csv');
-    unlink('CSVs/empresa/empresa.csv');
-    unlink('CSVs/socio/socios.csv');
-
-
 ?>

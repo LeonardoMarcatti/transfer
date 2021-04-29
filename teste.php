@@ -9,7 +9,6 @@
     use classes\AgenteDAO;
     use classes\EmpresaDAO;
     use classes\CnaeSecundarioDAO;
-use Codeception\Lib\Driver\MySql;
 
 setlocale(LC_ALL, "pt_BR.utf-8");
 
@@ -32,37 +31,38 @@ setlocale(LC_ALL, "pt_BR.utf-8");
 
     class ClassPDO
     {
-
         private $pdo;
 
         public function __construct(\PDO $conection)
         {
             $this->pdo = $conection;
         }
-        
-        public function getInfo($val)
+
+        public function getCodMunicipios()
         {
-            $sql = "select capital_social, cnae_fiscal, nome_fantasia, cod_nat_juridica, data_situacao from tb_empresa where cnpj_cpf = :val";
+            $sql = "select cod_municipio from tb_municipio order by cod_municipio";
+            $select = $this->pdo->prepare($sql);
+            $select->execute();
+            $cods = $select->fetchAll(PDO::FETCH_ASSOC);
+            return $cods;
+        }
+
+        public function getQteEmpresas($val)
+        {
+            $sql = "select count(situacao_fk) as qte from tb_empresa where cod_municipio = :val";
             $select = $this->pdo->prepare($sql);
             $select->bindValue(':val', $val);
             $select->execute();
-            return $select->fetchAll(\PDO::FETCH_ASSOC);
-        }
-        
-        public function getAgenteFK(Myclass $m)
-        {
-            $sql = "select cnpj_cpf from tb_empresa where cod_municipio = :val limit 100000";
-            $select = $this->pdo->prepare($sql);
-            $select->bindValue(':val', $m->getID());
-            $select->execute();
-            return $select->fetchAll(\PDO::FETCH_ASSOC);
+            $qte = $select->fetch()['qte'];
+            return $qte;
         }
     }
+    /*
+    $a = new ClassPDO($bigdata);
+    $cod_municipios = $a->getCodMunicipios();
 
-        $b = new Myclass();
-        $b->setID(6001);
-        
-        $a = new ClassPDO($bigdata);
-        $l = $a->getAgenteFK($b);
-        var_dump($l);
+    foreach ($cod_municipios as $key => $value) {
+        echo $a->getQteEmpresas($value['cod_municipio']) . "<br>";
+    };*/
+
 ?>

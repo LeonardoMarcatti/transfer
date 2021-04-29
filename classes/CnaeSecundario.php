@@ -9,14 +9,14 @@
             $this->pdo = $conection;
         }
 
-        public function getEmpresaID($val)
+        public function getEmpresaInfo($val)
         {
-            $sql = "select id from tb_empresa where agente_fk = :val";
+            $sql = "select e.id, a.cpf_cnpj from tb_empresa e join tb_agente a on e.agente_fk = a.id where e.agente_fk = :val";
             $select = $this->pdo->prepare($sql);
             $select->bindValue(':val', $val);
             $select->execute();
-            $id = $select->fetch()['id'];
-            return $id;
+            $info = $select->fetch();
+            return $info;
         }
 
         public function getCNAES($val)
@@ -49,6 +49,7 @@
             $insert->bindValue(':cnae', $cnae);
             $insert->execute();
         }
+
     };    
 
 ?>
