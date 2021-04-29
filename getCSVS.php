@@ -1,5 +1,9 @@
 <?php
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> d01b661a8e2a16f58b6b1fa0ad9a7dfd02b32596
     require_once 'localconection.php';
     require_once 'classes/Agente.php';
     require_once 'classes/Empresa.php';
