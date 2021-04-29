@@ -1,5 +1,9 @@
 <?php
+<<<<<<< HEAD
     //minhoca
+=======
+    //teste
+>>>>>>> bfa06813d25de4aab0286204204df74104a94f5c
     require_once 'localconection.php';
     require_once 'classes/Agente.php';
     require_once 'classes/Empresa.php';
