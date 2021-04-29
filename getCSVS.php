@@ -1,5 +1,10 @@
 <?php
+<<<<<<< HEAD
 
+=======
+    //teste
+    //teste2
+>>>>>>> dev
     require_once 'localconection.php';
     require_once 'classes/Agente.php';
     require_once 'classes/Empresa.php';
