@@ -9,25 +9,12 @@
     use classes\AgenteDAO;
     use classes\EmpresaDAO;
     use classes\CnaeSecundarioDAO;
-
-setlocale(LC_ALL, "pt_BR.utf-8");
-
-
-    class Myclass
-    {
-        private $id;
-
-        public function setID(int $val)
-        {
-            $this->id = $val;
-        }
-
-        public function getID()
-        {
-            return $this->id;
-        }
-    }
-    
+    setlocale(LC_ALL, "pt_BR.utf-8");
+    $cnae_selfie = new CnaeSecundarioDAO($selfie);
+    $cnaes = new CnaeSecundarioDAO($bigdata);
+    $cnae_bigdata = new CnaeSecundarioDAO($bigdata);
+    $socio = new SocioDAO($bigdata);
+    $id_empresas = array();
 
     class ClassPDO
     {
@@ -38,31 +25,19 @@ setlocale(LC_ALL, "pt_BR.utf-8");
             $this->pdo = $conection;
         }
 
-        public function getCodMunicipios()
+        public function getAgenteEstado($estado)
         {
-            $sql = "select cod_municipio from tb_municipio order by cod_municipio";
+            $sql = "copy (SELECT * FROM tb_empresa WHERE uf = $estado ORDER BY cnpj_cpf) to 
+            '/var/www/html/transfer/CSVs/agente/agente.csv' DELIMITER ';'";
             $select = $this->pdo->prepare($sql);
             $select->execute();
-            $cods = $select->fetchAll(PDO::FETCH_ASSOC);
-            return $cods;
-        }
-
-        public function getQteEmpresas($val)
-        {
-            $sql = "select count(situacao_fk) as qte from tb_empresa where cod_municipio = :val";
-            $select = $this->pdo->prepare($sql);
-            $select->bindValue(':val', $val);
-            $select->execute();
-            $qte = $select->fetch()['qte'];
-            return $qte;
         }
     }
-    /*
-    $a = new ClassPDO($bigdata);
-    $cod_municipios = $a->getCodMunicipios();
 
-    foreach ($cod_municipios as $key => $value) {
-        echo $a->getQteEmpresas($value['cod_municipio']) . "<br>";
-    };*/
+    $a = new ClassPDO($bigdata);
+    $a->getAgenteEstado('AC');    
+
+
+    
 
 ?>

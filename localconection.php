@@ -20,5 +20,4 @@
         echo 'Erro linha: ' . $th->getLine() . "<br>";
         echo ('Código: ' . $th->getMessage()) . "<br>";
     };
-    
 ?>

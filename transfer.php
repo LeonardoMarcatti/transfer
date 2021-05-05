@@ -14,14 +14,6 @@
                 <div class="global"></div>
                     <form action="" method="post" id="myform">
                         <div class="row">
-                            <div class=" form-group col-12">
-                                <label for="estados">Escolha o Estado</label>
-                                <select class="form-control" name="estados" id="estados">
-                                    <option value="0" selected>Todos</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
                             <div class="form-group col-10">
                                 <label for="municipio">Lista de Municípios</label>
                                 <textarea name="municipios" id="municipios" cols="50" rows="10" class="form-control" value="0"></textarea>
@@ -37,8 +29,8 @@
                         </div>
                     </form>
                 <!-- Modal -->
-                <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modal" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
+                <div class="modal fade " id="modal" tabindex="-1" aria-labelledby="modal" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
                         <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="exampleModalLabel">Pesquisa Município</h5>
