@@ -101,6 +101,7 @@ function gravaDados(dados) {
         url: "getCSVS.php",
         data: dados.serialize(),
         beforeSend:  () => {
+            console.log(dados.serialize());
             $('#resultado').find('a').remove();
             $('#resultado').find('button').remove();
             alert('Por favor aguarde');

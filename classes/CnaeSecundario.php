@@ -9,46 +9,38 @@
             $this->pdo = $conection;
         }
 
-        public function getEmpresaInfo($val)
+        public function getCNAEBrasil()
         {
-            $sql = "select e.id, a.cpf_cnpj from tb_empresa e join tb_agente a on e.agente_fk = a.id where e.agente_fk = :val";
+            $sql = "copy (SELECT cs.cnpj_cpf, cs.cnae_secundario
+            FROM tb_cnae_secundario cs
+            JOIN tb_empresa e ON e.cnpj_cpf = cs.cnpj_cpf) to 
+            '/var/www/html/transfer/CSVs/cnae/cnae.csv' DELIMITER ';'";
             $select = $this->pdo->prepare($sql);
-            $select->bindValue(':val', $val);
             $select->execute();
-            $info = $select->fetch();
-            return $info;
         }
 
-        public function getCNAES($val)
+        public function getCNAEMunicipios($municipios)
         {
-            $sql = "select cnae_secundario from tb_cnae_secundario where cnpj_cpf = :val";
+            $sql = "copy (SELECT cs.cnpj_cpf, cs.cnae_secundario
+            FROM tb_cnae_secundario cs
+            JOIN tb_empresa e ON e.cnpj_cpf = cs.cnpj_cpf
+            WHERE e.cod_municipio in ($municipios)) to 
+            '/var/www/html/transfer/CSVs/cnae/cnae.csv' DELIMITER ';'";
             $select = $this->pdo->prepare($sql);
-            $select->bindValue(':val', $val);
             $select->execute();
-            $values = $select->fetchAll(\PDO::FETCH_ASSOC);
-            return $values;
         }
 
-        public function checkCANESecundario($empresa, $cnae)
+        public function getCNAEEstado($estado)
         {
-            $sql = "select * from tb_empresa_cnae_secundario where empresa_fk = :emp and cnae_fk = :cnae";
+            $sql = "copy (SELECT cs.cnpj_cpf, cs.cnae_secundario
+            FROM tb_cnae_secundario cs
+            JOIN tb_empresa e ON e.cnpj_cpf = cs.cnpj_cpf
+            WHERE e.uf = '$estado') to 
+            '/var/www/html/transfer/CSVs/cnae/cnae.csv' DELIMITER ';'";
             $select = $this->pdo->prepare($sql);
-            $select->bindValue(':emp', $empresa);
-            $select->bindValue(':cnae', $cnae);
             $select->execute();
-            $check = $select->fetchAll(\PDO::FETCH_ASSOC);
-
-            return ($check)? true : false;
         }
 
-        public function addCNAESecundario($empresa, $cnae)
-        {
-            $sql = "insert into tb_empresa_cnae_secundario(empresa_fk, cnae_fk) values(:emp, :cnae)";
-            $insert = $this->pdo->prepare($sql);
-            $insert->bindValue(':emp', $empresa);
-            $insert->bindValue(':cnae', $cnae);
-            $insert->execute();
-        }
 
     };    
 
