@@ -44,7 +44,9 @@
         //*Apaga schema temp;
         $temp->dropTemp();
     };
+    $qte = file('CSVs/empresa/empresa.csv');
     unlink('CSVs/empresa/empresa.csv');
     unlink('CSVs/socio/socio.csv');
     unlink('CSVs/cnae/cnae.csv');
+    echo count($qte);
 ?>
