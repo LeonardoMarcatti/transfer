@@ -101,16 +101,14 @@ function gravaDados(dados) {
         url: "getCSVS.php",
         data: dados.serialize(),
         beforeSend:  () => {
-            console.log(dados.serialize());
             $('#resultado').find('a').remove();
             $('#resultado').find('button').remove();
             alert('Por favor aguarde');
             $('#btn_agente').attr('disabled','');
         },
         success: function (resp) {
-            alert('Dados gravados com sucesso!');
+            alert('Total de ' + resp + ' CNPJs gravados');
             $('#btn_agente').removeAttr('disabled');
-            console.log(resp);
         },
         error: e => {
             console.log(e);

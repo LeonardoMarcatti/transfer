@@ -1,7 +1,7 @@
 <?php
     set_time_limit(0);
     header("Access-Control-Allow-Origin: *");
-    $server = "192.168.0.30";
+    $server = "localhost";
     $db = 'db_bigdata';
     $db2 = 'selfie';
     $user = 'postgres';
